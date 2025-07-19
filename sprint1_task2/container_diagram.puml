@@ -1,48 +1,29 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-Person(user, "Пользователь", "Использует веб/мобильное приложение для управления отоплением")
-'Person(specialist, "Специалист компании", "Устанавливает устройства, сопровождает клиентов")
+'LAYOUT_WITH_LEGEND()
 
-System_Boundary(s1, "Умный дом — Микросервисы") {
-  Container(api_gateway, "API Gateway", "Node.js/Kong/Nginx", "Точка входа для пользователей и приложений")
-  Container(user_srv, "User Management Service", "Python", "Аутентификация, авторизация, роли")
-  Container(home_srv, "Home Management Service", "Python", "Дома, связи, управляющие данные")
-  Container(device_srv, "Device Management Service", "Python", "Управление устройствами и их привязка")
-  Container(telemetry_srv, "Telemetry Service", "Python", "Сбор данных с устройств")
-  Container(control_srv, "Control Service", "Python", "Управление сценариями и состоянием устройств")
-  Container(integration_srv, "Integration Service", "Python", "Интеграция с физическими устройствами")
-  Container(notify_srv, "Notification Service", "Python", "Рассылка уведомлений")
-  ContainerDb(userdb, "UserDB", "PostgreSQL", "Пользователи")
-  ContainerDb(homedb, "HomeDB", "PostgreSQL", "Дома")
-  ContainerDb(devicedb, "DeviceDB", "PostgreSQL", "Устройства")
-  ContainerDb(telemetrydb, "TelemetryDB", "TimescaleDB", "Телеметрия")
-  ContainerDb(heatingdb, "HeatingDB", "PostgreSQL", "Режимы и история управления")
-  ContainerQueue(broker, "Message Broker", "Kafka", "Асинхронная коммуникация с помощью сообщений")
-}
+title Диаграмма контейнеров
 
-Rel(user, api_gateway, "API-запросы")
-Rel(api_gateway, user_srv, "REST")
-Rel(api_gateway, home_srv, "REST")
-Rel(api_gateway, device_srv, "REST")
-Rel(api_gateway, control_srv, "REST")
-Rel(api_gateway, telemetry_srv, "REST")
+Person(user, "Пользователь", "Использует веб приложение для управления отоплением")
 
-'Rel(notify_srv, user, "получает данные email/push")
+System_Boundary(s1, "Умный дом") {
+  Container(web_app, "Web Application", "Python/Flask", "Предоставляет статический контент")
+  Container(spa, "Single-Page App", "JavaScript, Angular", "Предоставляет пользователям все функции системы через их веб-браузер")
+  ContainerDb(database, "Database", "SQL Database", "Хранит данные модулей системы")
+  Container(backend_api, "API Application", "Python", "Обеспечивает функциональность модулей системы")
+ }
 
-Rel(user_srv, userdb, "SQL")
-Rel(home_srv, homedb, "SQL")
-Rel(device_srv, devicedb, "SQL")
-Rel(telemetry_srv, telemetrydb, "SQL")
-Rel(control_srv, heatingdb, "SQL")
+System_Ext(email_system, "E-Mail System", "Внутренняя система Microsoft Exchange")
 
-Rel(control_srv, integration_srv, "REST")
-Rel(integration_srv, device_srv, "REST")
-Rel(integration_srv, broker, "отправляет сообщения")
-Rel(device_srv, broker, "читает сообщения")
-Rel(telemetry_srv, broker, "читает сообщения")
-Rel(control_srv, broker, "отправляет/читает сообщения")
+Rel(user, web_app, "Использует", "HTTPS")
+Rel(user, spa, "Использует", "HTTPS")
 
-Rel(broker, notify_srv, "читает сообщения")
+Rel_Neighbor(web_app, spa, "Доставляет")
+Rel(spa, backend_api, "Использует", "JSON/HTTPS")
+Rel_Back_Neighbor(database, backend_api, "Читает из и записывает в", "SQL")
+
+Rel_Back(user, email_system, "Отправляет электронные письма по адресу")
+Rel_Back(email_system, backend_api, "Отправляет электронные письма с помощью", "SMTP")
 
 @enduml
