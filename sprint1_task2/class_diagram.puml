@@ -1,0 +1,44 @@
+@startuml
+
+title Диаграмма классов
+
+class User {
+    + id: integer
+    + username: string
+    + email: string
+    + get_homes(): List<Home>
+}
+
+class House {
+    + id: integer
+    + address: string
+    + name: string
+    + owner: User
+    + get_devices(): List<Device>
+}
+
+class Device {
+    + id: integer
+    + name: string
+    + type: string
+    + status: string
+    + owner: User
+    + house: House
+    + get_status(): string
+    + set_status(new_status: str): void
+}
+
+class DeviceManager {
+    + devices: List<Device>
+    + register_device(device: Device): bool
+    + update_device(device_id: int, data: dict): bool
+    + remove_device(device_id: int): bool
+    + get_device(device_id: int): Device
+    + list_devices(): List<Device>
+}
+
+User "1" -- "*" House : has >
+House "1" -- "*" Device : contains >
+DeviceManager "1" -- "*" Device : manages >
+
+@enduml
