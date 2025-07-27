@@ -19,10 +19,10 @@ Container_Boundary(api_app, "API Application") {
   ComponentDb(devicedb, "DeviceDB", "PostgreSQL", "Устройства")
   ComponentDb(telemetrydb, "TelemetryDB", "TimescaleDB", "Телеметрия")
   ComponentDb(heatingdb, "HeatingDB", "PostgreSQL", "Режимы и история управления")
-  ComponentQueue(broker, "Message Broker", "Kafka", "Асинхронная коммуникация с помощью сообщений")
 }
 
 Rel(spa, api_gateway, "HTTP")
+
 Rel(api_gateway, user_srv, "REST")
 Rel(api_gateway, house_srv, "REST")
 Rel(api_gateway, device_srv, "REST")
@@ -37,11 +37,12 @@ Rel(control_srv, heatingdb, "SQL")
 
 Rel(control_srv, integration_srv, "REST")
 Rel(integration_srv, device_srv, "REST")
-Rel(integration_srv, broker, "отправляет сообщения")
-Rel(device_srv, broker, "читает сообщения")
-Rel(telemetry_srv, broker, "читает сообщения")
-Rel(control_srv, broker, "отправляет/читает сообщения")
+Rel(telemetry_srv, integration_srv, "REST")
 
-Rel(broker, notify_srv, "читает сообщения")
+Rel(control_srv, notify_srv, "REST")
+Rel(user_srv, notify_srv, "REST")
+Rel(house_srv, notify_srv, "REST")
+Rel(device_srv, notify_srv, "REST")
+
 
 @enduml
