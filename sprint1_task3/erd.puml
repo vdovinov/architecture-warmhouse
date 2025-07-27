@@ -1,0 +1,136 @@
+@startuml
+
+entity User {
+  *user_id : uuid <<PK>>
+  --
+  *name : text
+  email : text
+  password_hash : text
+  role : text
+  *created_at : timestamp
+  *created_by : text
+  update_at : timestamp
+  update_by : text
+  deleted : bool
+}
+
+entity House {
+  *house_id : uuid <<PK>>
+  --
+  owner_id : uuid <<FK>>
+  *name : text
+  address : text
+  *created_at : timestamp
+  *created_by : text
+  update_at : timestamp
+  update_by : text
+  deleted : bool
+}
+
+entity HouseUser {
+  *id : uuid <<PK>>
+  --
+  *house_id : uuid <<FK>>
+  *user_id : uuid <<FK>>
+  *access_level : text
+}
+
+entity DeviceType {
+  *device_type_id : uuid <<PK>>
+  --
+  type_name : text
+  description : text
+}
+
+entity Device {
+  *device_id : uuid <<PK>>
+  --
+  house_id : uuid <<FK>>
+  device_type_id : uuid <<FK>>
+  *name : text
+  status : text
+  meta : jsonb
+  *created_at : timestamp
+  *created_by : text
+  update_at : timestamp
+  update_by : text
+  deleted : bool
+}
+
+entity DeviceBinding {
+  *id : uuid <<PK>>
+  --
+  device_id : uuid <<FK>>
+  bind_type : text
+  bind_id : uuid
+  params : jsonb
+}
+
+entity Telemetry {
+  *id : bigint <<PK>>
+  --
+  device_id : uuid <<FK>>
+  ts : timestamptz
+  param : text
+  value : real
+}
+
+entity HeatingMode {
+  *id : uuid <<PK>>
+  --
+  house_id : uuid <<FK>>
+  mode_name : text
+  params : jsonb
+}
+
+entity HeatingHistory {
+  *id : uuid <<PK>>
+  --
+  device_id : uuid <<FK>>
+  ts : timestamptz
+  action : text
+  params : jsonb
+}
+
+entity Scenario {
+  *scenario_id : uuid <<PK>>
+  --
+  house_id : uuid <<FK>>
+  name : text
+  description : text
+  creator_id : uuid <<FK>>
+  is_active : bool
+}
+
+entity ScenarioAction {
+  *scenario_action_id : uuid <<PK>>
+  --
+  scenario_id : uuid <<FK>>
+  device_id : uuid <<FK>>
+  action_type : text
+  params : jsonb
+  order_num : int
+}
+
+entity ScenarioTrigger {
+  *scenario_trigger_id : uuid <<PK>>
+  --
+  scenario_id : uuid <<FK>>
+  trigger_type : text
+  params : jsonb
+}
+
+User ||--o{ House
+House ||--o{ HouseUser
+User ||--o{ HouseUser
+House ||--o{ Device
+DeviceType ||--o{ Device
+Device ||--o{ DeviceBinding
+Device ||--o{ Telemetry
+House ||--o{ HeatingMode
+Device ||--o{ HeatingHistory
+Scenario ||--o{ ScenarioAction
+Scenario ||--o{ ScenarioTrigger
+Device ||--o{ ScenarioAction
+
+@enduml
