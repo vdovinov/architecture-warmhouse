@@ -1,0 +1,336 @@
+openapi: "3.1.0"
+info:
+  title: Smart House Management API
+  version: "1.0"
+servers:
+  - url: http://localhost:61112/api/v1
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id: {type: string, format: uuid}
+        name: {type: string}
+        email: {type: string}
+        password_hash: {type: string}
+        role: {type: string}
+        created_at: {type: string, format: date-time}
+        created_by: {type: string}
+        update_at: {type: string, format: date-time}
+        update_by: {type: string}
+        deleted: {type: boolean}
+    House:
+      type: object
+      properties:
+        house_id: {type: string, format: uuid}
+        owner_id: {type: string, format: uuid}
+        name: {type: string}
+        address: {type: string}
+        created_at: {type: string, format: date-time}
+        created_by: {type: string}
+        update_at: {type: string, format: date-time}
+        update_by: {type: string}
+        deleted: {type: boolean}
+    HouseUser:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        house_id: {type: string, format: uuid}
+        user_id: {type: string, format: uuid}
+        access_level: {type: string}
+    DeviceType:
+      type: object
+      properties:
+        device_type_id: {type: string, format: uuid}
+        type_name: {type: string}
+        description: {type: string}
+    Device:
+      type: object
+      properties:
+        device_id: {type: string, format: uuid}
+        house_id: {type: string, format: uuid}
+        device_type_id: {type: string, format: uuid}
+        name: {type: string}
+        status: {type: string}
+        meta: {type: object, additionalProperties: true}
+        created_at: {type: string, format: date-time}
+        created_by: {type: string}
+        update_at: {type: string, format: date-time}
+        update_by: {type: string}
+        deleted: {type: boolean}
+    DeviceBinding:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        device_id: {type: string, format: uuid}
+        bind_type: {type: string}
+        bind_id: {type: string, format: uuid}
+        params: {type: object, additionalProperties: true}
+    Telemetry:
+      type: object
+      properties:
+        id: {type: integer, format: int64}
+        device_id: {type: string, format: uuid}
+        ts: {type: string, format: date-time}
+        param: {type: string}
+        value: {type: number, format: float}
+    HeatingMode:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        house_id: {type: string, format: uuid}
+        mode_name: {type: string}
+        params: {type: object, additionalProperties: true}
+    HeatingHistory:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        device_id: {type: string, format: uuid}
+        ts: {type: string, format: date-time}
+        action: {type: string}
+        params: {type: object, additionalProperties: true}
+    Scenario:
+      type: object
+      properties:
+        scenario_id: {type: string, format: uuid}
+        house_id: {type: string, format: uuid}
+        name: {type: string}
+        description: {type: string}
+        creator_id: {type: string, format: uuid}
+        is_active: {type: boolean}
+    ScenarioAction:
+      type: object
+      properties:
+        scenario_action_id: {type: string, format: uuid}
+        scenario_id: {type: string, format: uuid}
+        device_id: {type: string, format: uuid}
+        action_type: {type: string}
+        params: {type: object, additionalProperties: true}
+        order_num: {type: integer}
+    ScenarioTrigger:
+      type: object
+      properties:
+        scenario_trigger_id: {type: string, format: uuid}
+        scenario_id: {type: string, format: uuid}
+        trigger_type: {type: string}
+        params: {type: object, additionalProperties: true}
+
+paths:
+  /users:
+    get:
+      summary: Получить список пользователей
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/User' } } } }
+    post:
+      summary: Создать пользователя
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/User' } } }
+      responses: { '201': { description: Created } }
+
+  /users/{user_id}:
+    get:
+      summary: Получить пользователя по ID
+      parameters: [ { in: path, name: user_id, required: true, schema: { type: string } } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } } }
+    patch:
+      summary: Обновить пользователя
+      parameters: [ { in: path, name: user_id, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/User' } } }
+      responses: { '200': { description: Updated } }
+    delete:
+      summary: Удалить пользователя (soft-delete)
+      parameters: [ { in: path, name: user_id, required: true, schema: { type: string } } ]
+      responses: { '204': { description: Deleted } }
+
+  /houses:
+    get:
+      summary: Получить список домов
+      responses: {'200': {description: OK, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/House' }}}}}}
+    post:
+      summary: Создать дом
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/House'}}}
+      responses: { '201': {description: Created}}
+
+  /houses/{house_id}:
+    get:
+      summary: Получить дом по ID
+      parameters: [{in: path, name: house_id, required: true, schema: {type: string}}]
+      responses: {'200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/House'}}}}}
+    patch:
+      summary: Обновить дом
+      parameters: [{in: path, name: house_id, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/House'}}}
+      responses: { '200': {description: Updated}}
+    delete:
+      summary: Удалить дом (soft-delete)
+      parameters: [{in: path, name: house_id, required: true, schema: {type: string}}]
+      responses: { '204': {description: Deleted}}
+
+  /houses/{house_id}/users:
+    get:
+      summary: Получить всех пользователей дома
+      parameters: [{in: path, name: house_id, required: true, schema: {type: string}}]
+      responses: {'200': {description: OK, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/HouseUser'}}}}}}
+    post:
+      summary: Добавить пользователя в дом
+      parameters: [{in: path, name: house_id, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/HouseUser'}}}
+      responses: {'201': {description: Added}}
+
+  /devicetypes:
+    get:
+      summary: Получить типы устройств
+      responses:
+        '200':
+          description: OK
+          content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/DeviceType'}}}}
+    post:
+      summary: Добавить тип устройства
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/DeviceType'}}}
+      responses: {'201': {description: Created}}
+
+  /devices:
+    get:
+      summary: Получить список устройств
+      responses:
+        '200':
+          description: OK
+          content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/Device'}}}}
+    post:
+      summary: Создать устройство
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/Device'}}}
+      responses: {'201': {description: Created}}
+
+  /devices/{device_id}:
+    get:
+      summary: Получить устройство по ID
+      parameters: [{in: path, name: device_id, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/Device'}}}}
+
+  /devices/{device_id}/bindings:
+    get:
+      summary: Получить все привязки устройства
+      parameters: [{in: path, name: device_id, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/DeviceBinding'}}}}}
+    post:
+      summary: Создать привязку для устройства
+      parameters: [{in: path, name: device_id, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/DeviceBinding'}}}
+      responses: {'201': {description: Created}}
+
+  /devices/{device_id}/telemetry:
+    get:
+      summary: Получить телеметрию устройства (опционально с фильтрами по времени)
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          schema: {type: string}
+        - in: query
+          name: from
+          schema: {type: string, format: date-time}
+        - in: query
+          name: to
+          schema: {type: string, format: date-time}
+      responses:
+        '200':
+          description: Telemetry data
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Telemetry'}
+
+  /heatingmodes:
+    get:
+      summary: Список режимов отопления
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/HeatingMode'}}}}}
+    post:
+      summary: Создать режим отопления
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/HeatingMode'}}}
+      responses: {'201': {description: Created}}
+
+  /heatinghistory/by-device/{device_id}:
+    get:
+      summary: История действий по устройству отопления
+      parameters: [{in: path, name: device_id, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/HeatingHistory'}}}}}
+
+  /scenarios:
+    get:
+      summary: Получить сценарии
+      responses:
+        '200':
+          description: OK
+          content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/Scenario'}}}}
+    post:
+      summary: Создать сценарий
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/Scenario'}}}
+      responses: {'201': {description: Created}}
+
+  /scenarios/{scenario_id}:
+    get:
+      summary: Получить сценарий
+      parameters: [{in: path, name: scenario_id, required: true, schema: {type: string}}]
+      responses:
+        '200':
+          description: OK
+          content: {application/json: {schema: {$ref: '#/components/schemas/Scenario'}}}
+
+  /scenarios/{scenario_id}/actions:
+    get:
+      summary: Получить действия сценария
+      parameters: [{in: path, name: scenario_id, required: true, schema: {type: string}}]
+      responses:
+        '200':
+          description: OK
+          content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/ScenarioAction'}}}}
+    post:
+      summary: Добавить действие в сценарий
+      parameters: [{in: path, name: scenario_id, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/ScenarioAction'}}}
+      responses: {'201': {description: Added}}
+
+  /scenarios/{scenario_id}/triggers:
+    get:
+      summary: Получить триггеры сценария
+      parameters: [{in: path, name: scenario_id, required: true, schema: {type: string}}]
+      responses:
+        '200':
+          description: OK
+          content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/ScenarioTrigger'}}}}
+    post:
+      summary: Добавить триггер к сценарию
+      parameters: [{in: path, name: scenario_id, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/ScenarioTrigger'}}}
+      responses: {'201': {description: Added}}
