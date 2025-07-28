@@ -52,30 +52,31 @@
 
 ### 5. Визуализация контекста системы — диаграмма С4
 
-[Диаграмма контекста](https://github.com/vdovinov/architecture-warmhouse/blob/warmhouse/sprint1_task1/context_diagram.puml)
+[Диаграмма контекста](https://github.com/vdovinov/architecture-warmhouse/blob/main/sprint1_task1/context_diagram.puml)
 
 # Задание 2. Проектирование микросервисной архитектуры
 
 В этом задании вам нужно предоставить только диаграммы в модели C4. Мы не просим вас отдельно описывать получившиеся микросервисы и то, как вы определили взаимодействия между компонентами To-Be системы. Если вы правильно подготовите диаграммы C4, они и так это покажут.
 
-[Диаграмма контейнеров](https://github.com/vdovinov/architecture-warmhouse/blob/warmhouse/sprint1_task2/container_diagram.puml)
+[Диаграмма контейнеров](https://github.com/vdovinov/architecture-warmhouse/blob/main/sprint1_task2/container_diagram.puml)
 
-[Диаграмма компонентов](https://github.com/vdovinov/architecture-warmhouse/blob/warmhouse/sprint1_task2/component_diagram.puml)
+[Диаграмма компонентов](https://github.com/vdovinov/architecture-warmhouse/blob/main/sprint1_task2/component_diagram.puml)
 
-[Диаграмма кода](https://github.com/vdovinov/architecture-warmhouse/blob/warmhouse/sprint1_task2/class_diagram.puml)
+[Диаграмма кода](https://github.com/vdovinov/architecture-warmhouse/blob/main/sprint1_task2/class_diagram.puml)
 
 # Задание 3. Разработка ER-диаграммы
 
-[ER-диаграмма](https://github.com/vdovinov/architecture-warmhouse/blob/warmhouse/sprint1_task3/erd.puml)
+[ER-диаграмма](https://github.com/vdovinov/architecture-warmhouse/blob/main/sprint1_task3/erd.puml)
 
 # Задание 4. Создание и документирование API
 
 ### 1. Тип API
 
-Укажите, какой тип API вы будете использовать для взаимодействия микросервисов. Объясните своё решение.
+Bcопльзую REST API, т.к. не используется сервис брокера сообщений (нет асинхронного взаимодействия) ввиду небольшого количества микросервисов.
 
 ### 2. Документация API
 
+[swagger](https://github.com/vdovinov/architecture-warmhouse/blob/main/sprint1_task4/swagger.yaml)
 
 Здесь приложите ссылки на документацию API для микросервисов, которые вы спроектировали в первой части проектной работы. Для документирования используйте Swagger/OpenAPI или AsyncAPI.
 
@@ -133,5 +134,10 @@ Locations - название комнаты, sensorId - идентификато
 Должно при каждом вызове отображаться разное значение температуры
 
 Ревьюер будет проверять точно так же.
+
+### Решение:
+1) [temperature-api](https://github.com/vdovinov/architecture-warmhouse/blob/main/temperature_api/app.py)
+2) [dockerfile](https://github.com/vdovinov/architecture-warmhouse/blob/main/temperature_api/Dockerfile)
+3) [docker-compose](https://github.com/vdovinov/architecture-warmhouse/blob/main/docker-compose.yml)
 
 
