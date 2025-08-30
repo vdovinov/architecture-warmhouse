@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+'LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров
+
+Person(user, "Пользователь", "Использует веб приложение для управления отоплением")
+
+System_Boundary(s1, "Умный дом") {
+  Container(web_app, "Web Application", "Python/Flask", "Предоставляет статический контент")
+  Container(spa, "Single-Page App", "JavaScript, Angular", "Предоставляет пользователям все функции системы через их веб-браузер")
+  ContainerDb(database, "Database", "SQL Database", "Хранит данные модулей системы")
+  Container(backend_api, "API Application", "Python", "Обеспечивает функциональность модулей системы")
+ }
+
+System_Ext(email_system, "E-Mail System", "Внутренняя система Microsoft Exchange")
+
+Rel(user, web_app, "Использует", "HTTPS")
+Rel(user, spa, "Использует", "HTTPS")
+
+Rel_Neighbor(web_app, spa, "Доставляет")
+Rel(spa, backend_api, "Использует", "JSON/HTTPS")
+Rel_Back_Neighbor(database, backend_api, "Читает из и записывает в", "SQL")
+
+Rel_Back(user, email_system, "Отправляет электронные письма по адресу")
+Rel_Back(email_system, backend_api, "Отправляет электронные письма с помощью", "SMTP")
+
+@enduml
