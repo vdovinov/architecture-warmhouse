@@ -1,29 +1,48 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-'LAYOUT_WITH_LEGEND()
-
 title Диаграмма контейнеров
 
-Person(user, "Пользователь", "Использует веб приложение для управления отоплением")
+Container(spa, "Single-Page App", "JavaScript, Angular", "Предоставляет пользователям все функции системы через их веб-браузер")
 
-System_Boundary(s1, "Умный дом") {
-  Container(web_app, "Web Application", "Python/Flask", "Предоставляет статический контент")
-  Container(spa, "Single-Page App", "JavaScript, Angular", "Предоставляет пользователям все функции системы через их веб-браузер")
-  ContainerDb(database, "Database", "SQL Database", "Хранит данные модулей системы")
-  Container(backend_api, "API Application", "Python", "Обеспечивает функциональность модулей системы")
- }
+Container_Boundary(api_app, "API Application") {
+  Container(api_gateway, "API Gateway", "Node.js/Kong/Nginx", "Точка входа для пользователей и приложений")
+  Container(user_srv, "User Management Service", "Python", "Аутентификация, авторизация, роли")
+  Container(house_srv, "House Management Service", "Python", "Дома, связи, управляющие данные")
+  Container(device_srv, "Device Management Service", "Python", "Управление устройствами и их привязка")
+  Container(telemetry_srv, "Telemetry Service", "Python", "Сбор данных с устройств")
+  Container(control_srv, "Control Service", "Python", "Управление сценариями и состоянием устройств")
+  Container(integration_srv, "Integration Service", "Python", "Интеграция с физическими устройствами")
+  Container(notify_srv, "Notification Service", "Python", "Рассылка уведомлений")
+  ContainerDb(userdb, "UserDB", "PostgreSQL", "Пользователи")
+  ContainerDb(housedb, "HouseDB", "PostgreSQL", "Дома")
+  ContainerDb(devicedb, "DeviceDB", "PostgreSQL", "Устройства")
+  ContainerDb(telemetrydb, "TelemetryDB", "TimescaleDB", "Телеметрия")
+  ContainerDb(heatingdb, "HeatingDB", "PostgreSQL", "Режимы и история управления")
+}
 
-System_Ext(email_system, "E-Mail System", "Внутренняя система Microsoft Exchange")
+Rel(spa, api_gateway, "HTTP")
 
-Rel(user, web_app, "Использует", "HTTPS")
-Rel(user, spa, "Использует", "HTTPS")
+Rel(api_gateway, user_srv, "REST")
+Rel(api_gateway, house_srv, "REST")
+Rel(api_gateway, device_srv, "REST")
+Rel(api_gateway, control_srv, "REST")
+Rel(api_gateway, telemetry_srv, "REST")
 
-Rel_Neighbor(web_app, spa, "Доставляет")
-Rel(spa, backend_api, "Использует", "JSON/HTTPS")
-Rel_Back_Neighbor(database, backend_api, "Читает из и записывает в", "SQL")
+Rel(user_srv, userdb, "SQL")
+Rel(house_srv, housedb, "SQL")
+Rel(device_srv, devicedb, "SQL")
+Rel(telemetry_srv, telemetrydb, "SQL")
+Rel(control_srv, heatingdb, "SQL")
 
-Rel_Back(user, email_system, "Отправляет электронные письма по адресу")
-Rel_Back(email_system, backend_api, "Отправляет электронные письма с помощью", "SMTP")
+Rel(control_srv, integration_srv, "REST")
+Rel(integration_srv, device_srv, "REST")
+Rel(telemetry_srv, integration_srv, "REST")
+
+Rel(control_srv, notify_srv, "REST")
+Rel(user_srv, notify_srv, "REST")
+Rel(house_srv, notify_srv, "REST")
+Rel(device_srv, notify_srv, "REST")
+
 
 @enduml
